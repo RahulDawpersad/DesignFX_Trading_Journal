@@ -140,6 +140,12 @@
       gap: 30px;
   }
 
+.deposit-section {
+      display: flex;
+      flex-direction: column;
+      /* gap: 30px; */
+}
+
   .card {
       background-color: white;
       padding: 25px;
@@ -571,6 +577,66 @@
 
   .btn-toggle:hover {
       background-color: rgba(67, 97, 238, 0.1);
+  }
+
+
+/* Deposit Styling */
+  .deposit-section {
+      background-color: var(--card-bg);
+      padding: 20px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      margin-top: 20px;
+  }
+
+  .deposit-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      /* margin-bottom: 20px; */
+      align-items: flex-end;
+  }
+
+  .deposit-controls #addDepositBtn{
+    margin-bottom: 1em;
+  }
+
+  .deposit-controls .form-group {
+      flex: 1;
+      min-width: 150px;
+  }
+
+  .deposit-history h3 {
+      margin-bottom: 15px;
+      color: var(--text-color);
+  }
+
+  #depositTable {
+      width: 100%;
+      border-collapse: collapse;
+  }
+
+  #depositTable th,
+  #depositTable td {
+      padding: 10px 15px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+  }
+
+  #depositTable th {
+      background-color: var(--table-header-bg);
+      font-weight: 600;
+  }
+
+  .deposit-actions {
+      display: flex;
+      gap: 10px;
+  }
+
+  @media (max-width: 768px) {
+      .deposit-controls .form-group {
+          min-width: 100%;
+      }
   }
 
 
