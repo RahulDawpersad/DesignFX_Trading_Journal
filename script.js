@@ -26,6 +26,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const deleteModal = document.getElementById('deleteModal');
     const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
     const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+    const depositAmount = document.getElementById('depositAmount');
+    const depositAccount = document.getElementById('depositAccount');
+    const addDepositBtn = document.getElementById('addDepositBtn');
+    const depositTableBody = document.getElementById('depositTableBody');
 
     // Initialize date pickers
     flatpickr("#tradeDate", {
@@ -104,6 +108,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // State
     let trades = JSON.parse(localStorage.getItem('trades')) || [];
+    // Initialize deposits
+    let deposits = JSON.parse(localStorage.getItem('deposits')) || [];
     let currentView = 'real'; // 'real' or 'demo'
     let currentEditId = null;
     let sortConfig = {
@@ -111,9 +117,16 @@ document.addEventListener('DOMContentLoaded', function () {
         direction: 'desc'
     };
 
+    // Save deposits to localStorage
+    function saveDeposits() {
+        localStorage.setItem('deposits', JSON.stringify(deposits));
+    }
+
+
     // Initialize the app
     function init() {
         renderTrades();
+        renderDeposits(); // Add this line
         updateStats();
         updateChart();
         populateInstrumentFilter();
@@ -320,6 +333,81 @@ document.addEventListener('DOMContentLoaded', function () {
         updateTradeCount(); // This updates the filtered trade count in the table header
     }
 
+    function renderDeposits() {
+        depositTableBody.innerHTML = '';
+
+        // Filter by current view
+        const filteredDeposits = deposits.filter(deposit =>
+            currentView === 'all' ||
+            (currentView === 'real' && deposit.accountType === 'real') ||
+            (currentView === 'demo' && deposit.accountType === 'demo')
+        );
+
+        // Sort by date (newest first)
+        const sortedDeposits = [...filteredDeposits].sort((a, b) =>
+            new Date(b.date) - new Date(a.date)
+        );
+
+        sortedDeposits.forEach(deposit => {
+            const row = document.createElement('tr');
+            row.classList.add(deposit.accountType === 'real' ? 'real-account' : 'demo-account');
+
+            row.innerHTML = `
+            <td>${formatDate(deposit.date)}</td>
+            <td>${deposit.accountType === 'real' ? 'Real' : 'Demo'}</td>
+            <td>${formatCurrency(deposit.amount)}</td>
+            <td class="deposit-actions">
+                <button class="action-btn delete-deposit-btn" data-id="${deposit.id}" title="Delete">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        `;
+
+            depositTableBody.appendChild(row);
+        });
+
+        // Add event listeners to delete buttons
+        document.querySelectorAll('.delete-deposit-btn').forEach(btn => {
+            btn.addEventListener('click', () => deleteDeposit(btn.dataset.id));
+        });
+    }
+
+    // Add a new deposit
+    function addDeposit() {
+        const amount = parseFloat(depositAmount.value);
+        const accountType = depositAccount.value;
+
+        if (!amount || amount <= 0) {
+            alert('Please enter a valid deposit amount');
+            return;
+        }
+
+        const newDeposit = {
+            id: Date.now().toString(),
+            date: new Date().toISOString().split('T')[0],
+            amount: amount,
+            accountType: accountType
+        };
+
+        deposits.push(newDeposit);
+        saveDeposits();
+        renderDeposits();
+        updateStats();
+
+        // Reset form
+        depositAmount.value = '';
+    }
+
+    // Delete a deposit
+    function deleteDeposit(depositId) {
+        if (confirm('Are you sure you want to delete this deposit?')) {
+            deposits = deposits.filter(deposit => deposit.id !== depositId);
+            saveDeposits();
+            renderDeposits();
+            updateStats();
+        }
+    }
+
     // Format date for display
     function formatDate(dateString) {
         const options = { year: 'numeric', month: 'short', day: 'numeric' };
@@ -341,12 +429,22 @@ document.addEventListener('DOMContentLoaded', function () {
         const realTrades = trades.filter(trade => trade.accountType === 'real');
         const demoTrades = trades.filter(trade => trade.accountType === 'demo');
 
+        // Calculate total deposits
+        const realDeposits = deposits.filter(deposit => deposit.accountType === 'real')
+            .reduce((sum, deposit) => sum + deposit.amount, 0);
+        const demoDeposits = deposits.filter(deposit => deposit.accountType === 'demo')
+            .reduce((sum, deposit) => sum + deposit.amount, 0);
+
         // Calculate total profit/loss
         const realProfit = realTrades.reduce((sum, trade) => sum + trade.profitLoss, 0);
         const demoProfit = demoTrades.reduce((sum, trade) => sum + trade.profitLoss, 0);
 
-        realProfitEl.textContent = formatCurrency(realProfit);
-        demoProfitEl.textContent = formatCurrency(demoProfit);
+        // Calculate account balances (deposits + P/L)
+        const realBalance = realDeposits + realProfit;
+        const demoBalance = demoDeposits + demoProfit;
+
+        realProfitEl.textContent = formatCurrency(realBalance);
+        demoProfitEl.textContent = formatCurrency(demoBalance);
 
         // Calculate win rate - we'll keep this for all trades combined
         const winningTrades = trades.filter(trade => trade.outcome === 'win').length;
@@ -652,6 +750,7 @@ document.addEventListener('DOMContentLoaded', function () {
         demoAccountBtn.classList.remove('active');
         document.getElementById('accountType').value = 'real';
         renderTrades();
+        renderDeposits(); // Add this line
         updateStats(); // Explicitly update stats to ensure correct trade count
     });
 
@@ -661,6 +760,7 @@ document.addEventListener('DOMContentLoaded', function () {
         realAccountBtn.classList.remove('active');
         document.getElementById('accountType').value = 'demo';
         renderTrades();
+        renderDeposits(); // Add this line
         updateStats(); // Explicitly update stats to ensure correct trade count
     });
 
@@ -716,6 +816,8 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     updateTradeBtn.addEventListener('click', updateTrade);
+    // Deposit button event listener
+    addDepositBtn.addEventListener('click', addDeposit);
 
     confirmDeleteBtn.addEventListener('click', deleteTrade);
     cancelDeleteBtn.addEventListener('click', () => {
