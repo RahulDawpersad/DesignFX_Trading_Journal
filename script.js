@@ -722,7 +722,7 @@ document.addEventListener('DOMContentLoaded', function () {
             stopLoss: document.getElementById('stopLoss').value ? parseFloat(document.getElementById('stopLoss').value) : null,
             takeProfit: document.getElementById('takeProfit').value ? parseFloat(document.getElementById('takeProfit').value) : null,
             lotSize: parseFloat(document.getElementById('lotSize').value),
-            profitLoss: parseFloat(document.getElementById('profitLoss').value),
+            profitLoss: parseFloat(document.getElementById('profitLoss').value, // This already handles negatives,
             positionType: document.getElementById('positionType').value,
             outcome: document.getElementById('tradeOutcome').value,
             reason: document.getElementById('reason').value,
