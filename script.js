@@ -611,9 +611,9 @@ document.addEventListener('DOMContentLoaded', function () {
                             <input type="number" id="editLotSize" value="${trade.lotSize}" step="0.01" required>
                         </div>
                         <div class="form-group">
-    <label for="editProfitLoss">Profit/Loss (R):</label>
-    <input type="number" id="editProfitLoss" value="${trade.profitLoss}" step="0.01" min="-10000000" required>
-</div>
+                            <label for="editProfitLoss">Profit/Loss (R):</label>
+                            <input type="number" id="editProfitLoss" value="${trade.profitLoss}" step="0.01" required>
+                        </div>
                     </div>
                     
                     <div class="form-row">
@@ -722,7 +722,7 @@ document.addEventListener('DOMContentLoaded', function () {
             stopLoss: document.getElementById('stopLoss').value ? parseFloat(document.getElementById('stopLoss').value) : null,
             takeProfit: document.getElementById('takeProfit').value ? parseFloat(document.getElementById('takeProfit').value) : null,
             lotSize: parseFloat(document.getElementById('lotSize').value),
-            profitLoss: parseFloat(document.getElementById('profitLoss').value, // This already handles negatives,
+            profitLoss: parseFloat(document.getElementById('profitLoss').value),
             positionType: document.getElementById('positionType').value,
             outcome: document.getElementById('tradeOutcome').value,
             reason: document.getElementById('reason').value,
