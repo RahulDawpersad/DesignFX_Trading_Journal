@@ -611,9 +611,9 @@ document.addEventListener('DOMContentLoaded', function () {
                             <input type="number" id="editLotSize" value="${trade.lotSize}" step="0.01" required>
                         </div>
                         <div class="form-group">
-                            <label for="editProfitLoss">Profit/Loss (R):</label>
-                            <input type="number" id="editProfitLoss" value="${trade.profitLoss}" step="0.01" required>
-                        </div>
+    <label for="editProfitLoss">Profit/Loss (R):</label>
+    <input type="number" id="editProfitLoss" value="${trade.profitLoss}" step="0.01" min="-10000000" required>
+</div>
                     </div>
                     
                     <div class="form-row">
